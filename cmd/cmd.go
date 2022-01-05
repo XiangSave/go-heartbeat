@@ -1,11 +1,12 @@
 package cmd
 
 import (
+	"go-heartbeat/internal/cronjobs/master_update"
+	"go-heartbeat/pkg/cronjob"
+	"log"
+
 	"github.com/robfig/cron/v3"
 	"github.com/spf13/cobra"
-	"go-heartbeat/internal/cronjobs/master_update"
-	"log"
-	"time"
 )
 
 var heartbeatVars struct {
@@ -40,7 +41,7 @@ var HeartbeatCmd = &cobra.Command{
 
 		// 开启主从监控
 		if heartbeatVars.run {
-			jobs := cron.New(cron.WithSeconds())
+			jobs := cronjob.New(cron.WithSeconds())
 			_, err := jobs.AddFunc("* * * * * *", master_update.MasterUpdate)
 			if err != nil {
 				log.Fatal(err)
@@ -49,10 +50,21 @@ var HeartbeatCmd = &cobra.Command{
 			if err != nil {
 				log.Fatal(err)
 			}
+			jobs.Run()
 
-			jobs.Start()
-			defer jobs.Stop()
-			time.Sleep(30 * time.Second)
+			// jobs := cron.New(cron.WithSeconds())
+			// _, err := jobs.AddFunc("* * * * * *", master_update.MasterUpdate)
+			// if err != nil {
+			// 	log.Fatal(err)
+			// }
+			// _, err = jobs.AddFunc("* * * * * *", master_update.SlaveUpdate)
+			// if err != nil {
+			// 	log.Fatal(err)
+			// }
+
+			// jobs.Start()
+			// defer jobs.Stop()
+			// time.Sleep(30 * time.Second)
 		}
 
 	},
