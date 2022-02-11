@@ -1,0 +1,13 @@
+---
+GoHeartbeatTools:
+  masterConnectSetting:
+    name: "test-pro-db-master"
+    dbType: "mysql"
+    host: ""
+    userName: ""
+    password: ""
+    charset: "utf8mb4"
+    dbName: ""
+    tblName: ""
+    maxIdleConnections: 1
+    maxOpenConnections: 5

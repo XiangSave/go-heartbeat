@@ -46,25 +46,9 @@ var HeartbeatCmd = &cobra.Command{
 			if err != nil {
 				log.Fatal(err)
 			}
-			_, err = jobs.AddFunc("* * * * * *", master_update.SlaveUpdate)
-			if err != nil {
-				log.Fatal(err)
-			}
+
 			jobs.Run()
 
-			// jobs := cron.New(cron.WithSeconds())
-			// _, err := jobs.AddFunc("* * * * * *", master_update.MasterUpdate)
-			// if err != nil {
-			// 	log.Fatal(err)
-			// }
-			// _, err = jobs.AddFunc("* * * * * *", master_update.SlaveUpdate)
-			// if err != nil {
-			// 	log.Fatal(err)
-			// }
-
-			// jobs.Start()
-			// defer jobs.Stop()
-			// time.Sleep(30 * time.Second)
 		}
 
 	},

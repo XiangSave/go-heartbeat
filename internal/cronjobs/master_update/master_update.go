@@ -10,9 +10,3 @@ func MasterUpdate() {
 	times := time.Now().UnixNano()
 	log.Printf("master update: %v", times)
 }
-
-func SlaveUpdate() {
-	times := time.Now().UnixNano()
-	log.Printf("slave  update: %v", times)
-
-}
