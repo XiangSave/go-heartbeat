@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"go-heartbeat/internal/cronjobs/master_update"
+	"go-heartbeat/internal/cronjobs/masterupdate"
 	"go-heartbeat/pkg/cronjob"
 	"log"
 
@@ -10,9 +10,9 @@ import (
 )
 
 var heartbeatVars struct {
-	printHelp bool
-	check     bool
-	run       bool
+	printDBInitCmd bool
+	check          bool
+	run            bool
 }
 
 var HeartbeatCmd = &cobra.Command{
@@ -20,17 +20,9 @@ var HeartbeatCmd = &cobra.Command{
 	Short: "master slave heartbeat",
 	Long:  "MySQL 主从延迟监控",
 	Run: func(cmd *cobra.Command, args []string) {
-		// 无传入参数则打印帮助信息
-		//if len(args) == 0{
-		//	err := cmd.Help()
-		//	if err != nil{
-		//		log.Fatal(err)
-		//	}
-		//	os.Exit(1)
-		//}
 
 		// 基于配置文件打印被监控数据库要执行的语句
-		if heartbeatVars.printHelp {
+		if heartbeatVars.printDBInitCmd {
 			log.Println("grants users ......")
 		}
 
@@ -41,14 +33,14 @@ var HeartbeatCmd = &cobra.Command{
 
 		// 开启主从监控
 		if heartbeatVars.run {
-			jobs := cronjob.New(cron.WithSeconds())
-			_, err := jobs.AddFunc("* * * * * *", master_update.MasterUpdate)
+			jobs := cronjob.New(cron.WithSeconds(), cron.WithChain(
+				cron.SkipIfStillRunning(cron.DefaultLogger)))
+
+			_, err := jobs.AddFunc("* * * * * *", masterupdate.MasterUpdate)
 			if err != nil {
 				log.Fatal(err)
 			}
-
 			jobs.Run()
-
 		}
 
 	},
@@ -59,7 +51,7 @@ func Execute() error {
 }
 
 func init() {
-	HeartbeatCmd.Flags().BoolVarP(&heartbeatVars.printHelp, "print", "p", false, "打印要执行的操作")
+	HeartbeatCmd.Flags().BoolVarP(&heartbeatVars.printDBInitCmd, "print", "p", false, "打印要执行的操作")
 	HeartbeatCmd.Flags().BoolVarP(&heartbeatVars.check, "check", "c", false, "校验数据库连接可用性")
 	HeartbeatCmd.Flags().BoolVarP(&heartbeatVars.run, "run", "r", false, "启动")
 }

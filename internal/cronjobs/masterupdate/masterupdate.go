@@ -1,4 +1,4 @@
-package master_update
+package masterupdate
 
 import (
 	"log"
