@@ -1,8 +1,8 @@
 package heartbeatconf
 
-type HeartbeatSettings struct {
+type HeartbeatSettingS struct {
 	MasterConnectSetting ConnectSettingS   `yaml:"masterConnectSetting"`
-	SlaveConnectSetting  []ConnectSettingS `yaml:"slaveConnectSettings"`
+	SlaveConnectSetting  []ConnectSettingS `yaml:"slaveConnectSetting"`
 }
 
 type ConnectSettingS struct {
@@ -16,4 +16,12 @@ type ConnectSettingS struct {
 	TblName            string `yaml:"tblName"`
 	MaxIdleConnections int    `yaml:"maxIdleConnections"`
 	MaxOpenConnections int    `yaml:"maxOpenConnections"`
+}
+
+func (s *Setting) ReadHeartbeatSetting(k string, v interface{}) error {
+	err := s.vp.UnmarshalKey(k, v)
+	if err != nil {
+		return err
+	}
+	return nil
 }

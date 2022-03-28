@@ -11,25 +11,25 @@ GoHeartbeatTools:
     tblName: ""
     maxIdleConnections: 1
     maxOpenConnections: 5
-  slaveConnectSettings:
+  slaveConnectSetting:
     - name: "test-pro-db-slave01"
-      dbType: ""
+      dbType: "aaa"
       host: ""
       userName: ""
       password: ""
       charset: ""
       dbName: ""
       tblName: ""
-      maxIdleConnections: ""
-      maxOpenConnections: ""
+      maxIdleConnections: 1
+      maxOpenConnections: 1
     - name: "test-pro-db-slave02"
-      dbType: ""
+      dbType: "bbb"
       host: ""
       userName: ""
       password: ""
       charset: ""
       dbName: ""
       tblName: ""
-      maxIdleConnections: ""
-      maxOpenConnections: ""
+      maxIdleConnections: 1
+      maxOpenConnections: 1
 

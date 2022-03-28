@@ -1,4 +1,4 @@
-package conf
+package heartbeatconf
 
 import "github.com/spf13/viper"
 
@@ -8,7 +8,7 @@ type Setting struct {
 
 func NewSetting(dirpath string) (*Setting, error) {
 	vp := viper.New()
-	vp.SetConfigName("esTools.yaml")
+	vp.SetConfigName("go-heartbeat.yaml")
 	vp.AddConfigPath(dirpath)
 	vp.SetConfigType("yaml")
 	err := vp.ReadInConfig()
