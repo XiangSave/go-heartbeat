@@ -3,7 +3,8 @@ package cmd
 import (
 	"go-heartbeat/internal/cronjobs/masterupdate"
 	"go-heartbeat/pkg/cronjob"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/robfig/cron/v3"
 	"github.com/spf13/cobra"
@@ -23,12 +24,12 @@ var HeartbeatCmd = &cobra.Command{
 
 		// 基于配置文件打印被监控数据库要执行的语句
 		if heartbeatVars.printDBInitCmd {
-			log.Println("grants users ......")
+			log.Info("grants users ......")
 		}
 
 		// 校验配置文件配置的 master slave 连通性
 		if heartbeatVars.check {
-			log.Println("check master and slave connection status")
+			log.Infoln("check master and slave connection status")
 		}
 
 		// 开启主从监控

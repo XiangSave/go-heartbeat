@@ -1,6 +1,7 @@
 package heartbeatconf
 
 type HeartbeatSettingS struct {
+	LogPath              string            `yaml:"logPath"`
 	MasterConnectSetting ConnectSettingS   `yaml:"masterConnectSetting"`
 	SlaveConnectSetting  []ConnectSettingS `yaml:"slaveConnectSetting"`
 }

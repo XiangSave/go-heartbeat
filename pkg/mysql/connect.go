@@ -48,3 +48,17 @@ func (m *DBModel) Connect() error {
 	}
 	return nil
 }
+
+func (m *DBModel) RunExec(query string, args ...interface{}) (int, error) {
+	result, err := m.DBEngine.Exec(query, args...)
+	if err != nil {
+		return 0, err
+	}
+
+	changeRows, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+	return int(changeRows), nil
+
+}

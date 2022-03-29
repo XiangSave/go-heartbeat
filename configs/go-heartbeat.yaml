@@ -1,5 +1,6 @@
 ---
 GoHeartbeatTools:
+  logPath: "./logs/go-heartbeat.log"
   masterConnectSetting:
     name: "test-pro-db-master"
     dbType: "mysql"

@@ -1,0 +1,5 @@
+package masterupdate
+
+func updateMasterTimestamp() {
+
+}
