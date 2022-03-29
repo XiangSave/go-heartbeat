@@ -34,8 +34,9 @@ func MasterUpdate() error {
 }
 
 func masterupdate(con *mysql.DBInfo, tblName string) error {
-	// 查看 server id(仅查看)
-	// 查看 master status(仅查看)
+	// 查看 server id(仅查看) show variables like 'server_id';
+
+	// 查看 master status(仅查看) show master status
 
 	// con.RunExec("UPDATE %s SET ")
 
