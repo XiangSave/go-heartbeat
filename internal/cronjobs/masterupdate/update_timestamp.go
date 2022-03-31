@@ -1,5 +1,0 @@
-package masterupdate
-
-func updateMasterTimestamp() {
-
-}

@@ -1,10 +1,13 @@
 package masterupdate
 
 import (
+	"fmt"
 	"go-heartbeat/global"
+	"go-heartbeat/internal/cronjobs/query"
 	"go-heartbeat/pkg/mysql"
 	"time"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -34,11 +37,24 @@ func MasterUpdate() error {
 }
 
 func masterupdate(con *mysql.DBModel, tblName string) error {
-	// 查看 server id(仅查看) show variables like 'server_id';
+	serverId, err := query.GetServerId(con)
+	if err != nil {
+		return err
+	}
+	binlogFile, position, err := query.GetPosition(con)
+	if err != nil {
+		return err
+	}
 
-	// 查看 master status(仅查看) show master status
+	query := fmt.Sprintf("UPDATE %s SET `ts`=\"%d\" ,`file`=\"%s\",`position`=\"%s\"  WHERE `server_id`= %d", tblName, time.Now().UnixNano(), binlogFile, position, serverId)
 
-	// con.RunExec("UPDATE %s SET ")
+	affenctedRows, err := con.RunExec(query)
+	if err != nil {
+		return errors.Wrapf(err, "query sql error %s", query)
+	}
+	if affenctedRows != 1 {
+		return errors.Errorf("update timestamp affenced rows error, affend rows: %d", affenctedRows)
+	}
 
 	return nil
 }
