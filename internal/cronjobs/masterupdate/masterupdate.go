@@ -12,8 +12,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+var MasterUpdateVars struct {
+	Con *mysql.DBModel
+}
+
 // 根据配置文件创建 mysql 连接对象
-func MasterNewConnect() (*mysql.DBModel, error) {
+func MasterNewConnect() error {
 	MasterInfo := &mysql.DBInfo{
 		DBType:             global.HeartbeatSetting.MasterConnectSetting.DBType,
 		Host:               global.HeartbeatSetting.MasterConnectSetting.Host,
@@ -24,22 +28,22 @@ func MasterNewConnect() (*mysql.DBModel, error) {
 		MaxIdleConnections: global.HeartbeatSetting.MasterConnectSetting.MaxIdleConnections,
 		MaxOpenConnections: global.HeartbeatSetting.MasterConnectSetting.MaxOpenConnections,
 	}
-	con := mysql.NewDBModel(MasterInfo)
-	err := con.Connect()
+	MasterUpdateVars.Con = mysql.NewDBModel(MasterInfo)
+	err := MasterUpdateVars.Con.Connect()
 	if err != nil {
-		return nil, errors.Wrapf(err, "connect master db: %s failed",
+		return errors.Wrapf(err, "connect master db: %s failed",
 			global.HeartbeatSetting.MasterConnectSetting.Name)
 	}
-	return con, nil
+	return nil
 }
 
 // 创建无传参函数，供 cron 调用
 func MasterUpdate() {
-	con, err := MasterNewConnect()
-	if err != nil {
-		log.Errorf("%+v", err)
-	}
-	err = masterupdate(con)
+	// con, err := MasterNewConnect()
+	// if err != nil {
+	// 	log.Errorf("%+v", err)
+	// }
+	err := masterupdate(MasterUpdateVars.Con)
 	if err != nil {
 		log.Errorf("%+v", err)
 	}

@@ -39,6 +39,7 @@ var HeartbeatCmd = &cobra.Command{
 				cron.SkipIfStillRunning(cron.DefaultLogger)))
 
 			// 运行时若没有创建主从延迟表，则创建
+			// 为支持全局 Con，global 增加 Con 变量，保存 connect 成功后链接信息
 			con, err := masterupdate.MasterNewConnect()
 			if err != nil {
 				log.Fatal(err)
@@ -49,7 +50,7 @@ var HeartbeatCmd = &cobra.Command{
 				log.Fatal(err)
 			}
 
-			_, err = jobs.AddFunc("* * * * * *", masterupdate.MasterUpdate)
+			_, err = jobs.AddFunc("* * *  * *", masterupdate.MasterUpdate)
 			if err != nil {
 				log.Fatal(err)
 			}
