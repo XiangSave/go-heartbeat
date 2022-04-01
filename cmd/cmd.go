@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"go-heartbeat/internal/cronjobs/masterupdate"
+	"go-heartbeat/internal/serverinit"
 	"go-heartbeat/pkg/cronjob"
 
 	log "github.com/sirupsen/logrus"
@@ -24,7 +25,7 @@ var HeartbeatCmd = &cobra.Command{
 
 		// 基于配置文件打印被监控数据库要执行的语句
 		if heartbeatVars.printDBInitCmd {
-			log.Info("grants users ......")
+			serverinit.EchoDBInitCmd()
 		}
 
 		// 校验配置文件配置的 master slave 连通性
@@ -37,13 +38,24 @@ var HeartbeatCmd = &cobra.Command{
 			jobs := cronjob.New(cron.WithSeconds(), cron.WithChain(
 				cron.SkipIfStillRunning(cron.DefaultLogger)))
 
-			_, err := jobs.AddFunc("* * * * * *", masterupdate.MasterUpdate)
+			// 运行时若没有创建主从延迟表，则创建
+			con, err := masterupdate.MasterNewConnect()
 			if err != nil {
 				log.Fatal(err)
 			}
+
+			err = serverinit.MasterCreateTable(con)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			_, err = jobs.AddFunc("* * * * * *", masterupdate.MasterUpdate)
+			if err != nil {
+				log.Fatal(err)
+			}
+
 			jobs.Run()
 		}
-
 	},
 }
 

@@ -15,8 +15,11 @@ type QueryServerId struct {
 }
 
 type QueryMasterStatus struct {
-	BinlogFile string
-	Position   string
+	BinlogFile     string
+	Position       string
+	BinlogDoDB     string
+	BinlogIgnoreDB string
+	ExecuteGtidSet string
 }
 
 func GetServerId(con *mysql.DBModel) (int, error) {
@@ -52,12 +55,13 @@ func getMasterStatus(con *mysql.DBModel) (*QueryMasterStatus, error) {
 	var masterStatus QueryMasterStatus
 	query := "SHOW MASTER STATUS;"
 	row := con.DBEngine.QueryRow(query)
-	if err := row.Scan(&masterStatus.BinlogFile, &masterStatus.Position); err != nil {
+	if err := row.Scan(&masterStatus.BinlogFile, &masterStatus.Position,
+		&masterStatus.BinlogDoDB, &masterStatus.BinlogIgnoreDB,
+		&masterStatus.ExecuteGtidSet); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
 		return nil, errors.Wrapf(err, "query sql error %s", query)
 	}
 	return &masterStatus, nil
-
 }

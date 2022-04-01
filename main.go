@@ -4,7 +4,6 @@ import (
 	"go-heartbeat/cmd"
 	"go-heartbeat/global"
 	"go-heartbeat/internal/heartbeatconf"
-	"os"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -45,14 +44,14 @@ func setupSetting() error {
 }
 
 func setupLogger(logPath string, logLevel log.Level) error {
-	log.SetFormatter(&log.JSONFormatter{})
+	// log.SetFormatter(&log.JSONFormatter{})
 
-	file, err := os.OpenFile(logPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		return err
-	}
+	// file, err := os.OpenFile(logPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	// if err != nil {
+	// 	return err
+	// }
 
-	log.SetOutput(file)
+	// log.SetOutput(file)
 	log.SetLevel(logLevel)
 
 	return nil

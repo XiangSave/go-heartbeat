@@ -2,16 +2,16 @@
 GoHeartbeatTools:
   logPath: "./logs/go-heartbeat.log"
   masterConnectSetting:
-    name: "test-pro-db-master"
+    name: "test-master-185"
     dbType: "mysql"
-    host: ""
-    userName: ""
-    password: ""
+    host: "172.16.1.185"
+    userName: "heartbeat_user"
+    password: "123456"
     charset: "utf8mb4"
-    dbName: ""
-    tblName: ""
+    dbName: "go_heartbeat"
+    tblName: "go_heartbeat_tbl"
     maxIdleConnections: 1
-    maxOpenConnections: 5
+    maxOpenConnections: 3
   slaveConnectSetting:
     - name: "test-pro-db-slave01"
       dbType: "aaa"
