@@ -1,13 +1,15 @@
 package cmd
 
 import (
+	"go-heartbeat/global"
 	"go-heartbeat/internal/cronjobs/masterupdate"
+	"go-heartbeat/internal/cronjobs/slaveselect"
 	"go-heartbeat/internal/serverinit"
 	"go-heartbeat/pkg/cronjob"
 
+	"github.com/robfig/cron/v3"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/robfig/cron/v3"
 	"github.com/spf13/cobra"
 )
 
@@ -38,23 +40,24 @@ var HeartbeatCmd = &cobra.Command{
 			jobs := cronjob.New(cron.WithSeconds(), cron.WithChain(
 				cron.SkipIfStillRunning(cron.DefaultLogger)))
 
-			// 运行时若没有创建主从延迟表，则创建
-			// 为支持全局 Con，global 增加 Con 变量，保存 connect 成功后链接信息
+			// 与 Master 建立连接
 			con, err := masterupdate.MasterNewConnect()
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			err = serverinit.MasterCreateTable(con)
+			err = masterupdate.MasterCronRun(jobs, con)
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			_, err = jobs.AddFunc("* * *  * *", masterupdate.MasterUpdate)
-			if err != nil {
-				log.Fatal(err)
+			for _, slaveSetting := range global.HeartbeatSetting.SlaveConnectSetting {
+				con, err := slaveselect.SlaveNewConnect(slaveSetting)
+				if err != nil {
+					log.Fatal(err)
+				}
+				jobs.AddJob("* * * * * *", slaveselect.SlaveConnectionS{Con: con, SlaveSetting: slaveSetting})
 			}
-
 			jobs.Run()
 		}
 	},

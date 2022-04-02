@@ -7,17 +7,11 @@ import (
 	"go-heartbeat/pkg/mysql"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/pkg/errors"
 )
 
-var MasterUpdateVars struct {
-	Con *mysql.DBModel
-}
-
 // 根据配置文件创建 mysql 连接对象
-func MasterNewConnect() error {
+func MasterNewConnect() (*mysql.DBModel, error) {
 	MasterInfo := &mysql.DBInfo{
 		DBType:             global.HeartbeatSetting.MasterConnectSetting.DBType,
 		Host:               global.HeartbeatSetting.MasterConnectSetting.Host,
@@ -28,33 +22,17 @@ func MasterNewConnect() error {
 		MaxIdleConnections: global.HeartbeatSetting.MasterConnectSetting.MaxIdleConnections,
 		MaxOpenConnections: global.HeartbeatSetting.MasterConnectSetting.MaxOpenConnections,
 	}
-	MasterUpdateVars.Con = mysql.NewDBModel(MasterInfo)
-	err := MasterUpdateVars.Con.Connect()
+	con := mysql.NewDBModel(MasterInfo)
+	err := con.Connect()
 	if err != nil {
-		return errors.Wrapf(err, "connect master db: %s failed",
+		return nil, errors.Wrapf(err, "connect master db: %s failed",
 			global.HeartbeatSetting.MasterConnectSetting.Name)
 	}
-	return nil
-}
-
-// 创建无传参函数，供 cron 调用
-func MasterUpdate() {
-	// con, err := MasterNewConnect()
-	// if err != nil {
-	// 	log.Errorf("%+v", err)
-	// }
-	err := masterupdate(MasterUpdateVars.Con)
-	if err != nil {
-		log.Errorf("%+v", err)
-	}
+	return con, nil
 }
 
 // 获取 server_id，binlog 文件、position 位置，并更新 master 对应行
 func masterupdate(con *mysql.DBModel) error {
-	serverId, err := query.GetServerId(con)
-	if err != nil {
-		return err
-	}
 	binlogFile, position, err := query.GetPosition(con)
 	if err != nil {
 		return err
@@ -62,7 +40,7 @@ func masterupdate(con *mysql.DBModel) error {
 
 	query := fmt.Sprintf("UPDATE %s SET `ts`=\"%d\" ,`file`=\"%s\",`position`=\"%s\"  WHERE `server_id`= %d",
 		global.HeartbeatSetting.MasterConnectSetting.TblName,
-		time.Now().UnixNano(), binlogFile, position, serverId)
+		time.Now().UnixNano(), binlogFile, position, global.MasterServerId)
 
 	affenctedRows, err := con.RunExec(query)
 	if err != nil {
@@ -70,7 +48,7 @@ func masterupdate(con *mysql.DBModel) error {
 	}
 	if affenctedRows != 1 {
 		if affenctedRows == 0 {
-			return masterinsert(con, serverId)
+			return masterinsert(con, global.MasterServerId)
 		}
 		return errors.Wrapf(
 			errors.Errorf("update timestamp affenced rows error, affend rows: %d", affenctedRows),

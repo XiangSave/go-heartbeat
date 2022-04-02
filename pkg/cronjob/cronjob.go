@@ -27,7 +27,10 @@ func New(opts ...cron.Option) *CronjobServer {
 
 func (s *CronjobServer) AddFunc(spec string, cmd func()) (cron.EntryID, error) {
 	return s.s.AddFunc(spec, cmd)
+}
 
+func (s *CronjobServer) AddJob(spec string, cmd cron.Job) (cron.EntryID, error) {
+	return s.s.AddJob(spec, cmd)
 }
 
 func (s *CronjobServer) Run() error {
@@ -77,5 +80,4 @@ func (s *CronjobServer) Stop() {
 	case <-time.After(3 * time.Second):
 		log.Println("waiting too lang,killed")
 	}
-
 }

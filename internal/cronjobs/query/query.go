@@ -2,6 +2,8 @@ package query
 
 import (
 	"database/sql"
+	"fmt"
+	"go-heartbeat/global"
 	"go-heartbeat/pkg/mysql"
 
 	"github.com/pkg/errors"
@@ -22,6 +24,10 @@ type QueryMasterStatus struct {
 	ExecuteGtidSet string
 }
 
+type QuerySlaveStatus struct {
+	Ts int
+}
+
 func GetServerId(con *mysql.DBModel) (int, error) {
 	resServerId, err := getServerId(con)
 	if err != nil {
@@ -36,6 +42,22 @@ func GetPosition(con *mysql.DBModel) (string, string, error) {
 		return "", "", err
 	}
 	return resMasterStatus.BinlogFile, resMasterStatus.Position, nil
+}
+
+func GetTimestamp(con *mysql.DBModel, tblName string) (int, error) {
+	var querySlaveStatus QuerySlaveStatus
+	query := fmt.Sprintf("SELECT `ts` FROM `%s` WHERE `server_id` = %d;",
+		tblName, global.MasterServerId)
+
+	row := con.DBEngine.QueryRow(query)
+	if err := row.Scan(&querySlaveStatus.Ts); err != nil {
+		if err == sql.ErrNoRows {
+			return 0, nil
+		}
+		return 0, errors.Wrapf(err, "query sql error %s", query)
+	}
+	return querySlaveStatus.Ts, nil
+
 }
 
 func getServerId(con *mysql.DBModel) (*QueryServerId, error) {
