@@ -25,7 +25,7 @@ type QueryMasterStatus struct {
 }
 
 type QuerySlaveStatus struct {
-	Ts int
+	Ts int64
 }
 
 func GetServerId(con *mysql.DBModel) (int, error) {
@@ -44,7 +44,7 @@ func GetPosition(con *mysql.DBModel) (string, string, error) {
 	return resMasterStatus.BinlogFile, resMasterStatus.Position, nil
 }
 
-func GetTimestamp(con *mysql.DBModel, tblName string) (int, error) {
+func GetTimestamp(con *mysql.DBModel, tblName string) (int64, error) {
 	var querySlaveStatus QuerySlaveStatus
 	query := fmt.Sprintf("SELECT `ts` FROM `%s` WHERE `server_id` = %d;",
 		tblName, global.MasterServerId)

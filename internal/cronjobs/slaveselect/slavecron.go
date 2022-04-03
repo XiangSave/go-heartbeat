@@ -4,6 +4,8 @@ import (
 	"go-heartbeat/internal/cronjobs/query"
 	"go-heartbeat/internal/heartbeatconf"
 	"go-heartbeat/pkg/mysql"
+	"go-heartbeat/pkg/rolling"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -11,8 +13,9 @@ import (
 )
 
 type SlaveConnectionS struct {
-	SlaveSetting heartbeatconf.SlaveConnectSettingS
-	Con          *mysql.DBModel
+	SlaveSetting  heartbeatconf.SlaveConnectSettingS
+	Con           *mysql.DBModel
+	RollingTiming *rolling.Timing
 }
 
 func SlaveNewConnect(c heartbeatconf.SlaveConnectSettingS) (*mysql.DBModel, error) {
@@ -36,9 +39,14 @@ func SlaveNewConnect(c heartbeatconf.SlaveConnectSettingS) (*mysql.DBModel, erro
 }
 
 func (s SlaveConnectionS) Run() {
+
 	timestamp, err := query.GetTimestamp(s.Con, s.SlaveSetting.TblName)
 	if err != nil {
 		log.Error(err)
 	}
-	log.Infof("%s: %d", s.SlaveSetting.Name, timestamp)
+	now := time.Now()
+	log.Info(now.Sub(time.Unix(0, timestamp)))
+
+	s.RollingTiming.Add(now.Sub(time.Unix(0, timestamp)))
+	log.Println(s.SlaveSetting.Name, s.RollingTiming.Average())
 }

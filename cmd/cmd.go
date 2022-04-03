@@ -6,6 +6,8 @@ import (
 	"go-heartbeat/internal/cronjobs/slaveselect"
 	"go-heartbeat/internal/serverinit"
 	"go-heartbeat/pkg/cronjob"
+	"go-heartbeat/pkg/rolling"
+	"time"
 
 	"github.com/robfig/cron/v3"
 	log "github.com/sirupsen/logrus"
@@ -46,17 +48,29 @@ var HeartbeatCmd = &cobra.Command{
 				log.Fatal(err)
 			}
 
+			// 开启 Master 定时任务
 			err = masterupdate.MasterCronRun(jobs, con)
 			if err != nil {
 				log.Fatal(err)
 			}
+			time.Sleep(1 * time.Second)
 
+			// 创建 Slave 相关定时任务
 			for _, slaveSetting := range global.HeartbeatSetting.SlaveConnectSetting {
 				con, err := slaveselect.SlaveNewConnect(slaveSetting)
 				if err != nil {
 					log.Fatal(err)
 				}
-				jobs.AddJob("* * * * * *", slaveselect.SlaveConnectionS{Con: con, SlaveSetting: slaveSetting})
+				var maxSaveSecond int64
+				for _, s := range slaveSetting.MonitorRoler {
+					if maxSaveSecond < int64(s.During) {
+						maxSaveSecond = int64(s.During)
+					}
+				}
+				log.Infof("%s max save seconds: %d", slaveSetting.Name, maxSaveSecond)
+				rollingTime := rolling.NewTiming(maxSaveSecond)
+				jobs.AddJob("* * * * * *", slaveselect.SlaveConnectionS{
+					Con: con, SlaveSetting: slaveSetting, RollingTiming: rollingTime})
 			}
 			jobs.Run()
 		}
