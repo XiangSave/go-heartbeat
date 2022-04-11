@@ -25,7 +25,7 @@ GoHeartbeatTools:
       maxIdleConnections: 1
       maxOpenConnections: 3
       monitorRoler:
-        - during: 1
+        - during: 5
           laterSeconds: 20
         - during: 30
           laterSeconds: 10
@@ -42,7 +42,7 @@ GoHeartbeatTools:
       maxIdleConnections: 1
       maxOpenConnections: 3
       monitorRoler:
-        - during: 1
+        - during: 5
           laterSeconds: 20
         - during: 30
           laterSeconds: 10

@@ -1,6 +1,7 @@
 package rolling
 
 import (
+	"errors"
 	"math"
 	"sort"
 	"sync"
@@ -10,6 +11,9 @@ import (
 // Timing maintains time Durations for each time bucket.
 // The Durations are kept in an array to allow for a variety of
 // statistics to be calculated from the source data.
+
+var ErrNoMatchLens = errors.New("mathed rolling time is null")
+
 type Timing struct {
 	Buckets map[int64]*timingBucket
 	Mutex   *sync.RWMutex
@@ -171,4 +175,28 @@ func (r *Timing) Average() int64 {
 
 	// return int64(sum.Nanoseconds()/length) / 1000000000
 	return int64(sum.Seconds()) / length
+}
+
+func (r *Timing) RangeAverage(subs int) (int64, error) {
+	now := time.Now()
+	var sum time.Duration
+	var length int64
+
+	r.Mutex.Lock()
+	defer r.Mutex.Unlock()
+
+	for timestamp, b := range r.Buckets {
+		if timestamp >= now.Unix()-int64(subs) {
+			for _, d := range b.Durations {
+				sum += d
+				length += 1
+			}
+		}
+	}
+
+	if length == 0 {
+		return 0, ErrNoMatchLens
+	}
+
+	return int64(sum.Seconds()) / length, nil
 }
