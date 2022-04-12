@@ -1,11 +1,12 @@
 package rolling
 
 import (
-	"errors"
 	"math"
 	"sort"
 	"sync"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // Timing maintains time Durations for each time bucket.
@@ -195,7 +196,7 @@ func (r *Timing) RangeAverage(subs int) (int64, error) {
 	}
 
 	if length == 0 {
-		return 0, ErrNoMatchLens
+		return 0, errors.Wrap(ErrNoMatchLens, "rolling get range arerage")
 	}
 
 	return int64(sum.Seconds()) / length, nil

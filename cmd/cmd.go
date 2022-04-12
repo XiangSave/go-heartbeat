@@ -3,6 +3,7 @@ package cmd
 import (
 	"go-heartbeat/global"
 	"go-heartbeat/internal/cronjobs/masterupdate"
+	"go-heartbeat/internal/cronjobs/slavecheck"
 	"go-heartbeat/internal/cronjobs/slaveselect"
 	"go-heartbeat/internal/serverinit"
 	"go-heartbeat/pkg/cronjob"
@@ -48,12 +49,14 @@ var HeartbeatCmd = &cobra.Command{
 				log.Fatal(err)
 			}
 
+			// 记录开启时间，程序运行前 10s 不发送报警
+			global.StartTime = time.Now()
+
 			// 开启 Master 定时任务
 			err = masterupdate.MasterCronRun(jobs, con)
 			if err != nil {
 				log.Fatal(err)
 			}
-			time.Sleep(1 * time.Second)
 
 			// 创建 Slave 相关定时任务
 			for _, slaveSetting := range global.HeartbeatSetting.SlaveConnectSetting {
@@ -62,7 +65,7 @@ var HeartbeatCmd = &cobra.Command{
 					log.Fatal(err)
 				}
 				var maxSaveSecond int64
-				for _, s := range slaveSetting.MonitorRoler {
+				for _, s := range slaveSetting.MonitorRole {
 					if maxSaveSecond < int64(s.During) {
 						maxSaveSecond = int64(s.During)
 					}
@@ -71,6 +74,10 @@ var HeartbeatCmd = &cobra.Command{
 				rollingTime := rolling.NewTiming(maxSaveSecond)
 				jobs.AddJob("* * * * * *", slaveselect.SlaveConnectionS{
 					Con: con, SlaveSetting: slaveSetting, RollingTiming: rollingTime})
+
+				s := slavecheck.SlaveCheckInit(slaveSetting, rollingTime)
+				jobs.AddJob("* * * * * *", slavecheck.SlaveCheck{
+					Name: s.Name, MonitorRole: s.MonitorRole, RollingTiming: s.RollingTiming})
 			}
 			jobs.Run()
 		}

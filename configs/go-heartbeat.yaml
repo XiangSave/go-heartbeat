@@ -24,12 +24,12 @@ GoHeartbeatTools:
       tblName: "go_heartbeat_tbl"
       maxIdleConnections: 1
       maxOpenConnections: 3
-      monitorRoler:
-        - during: 5
+      monitorRole:
+        - during: 15
           laterSeconds: 20
-        - during: 30
+        - during: 10
           laterSeconds: 10
-        - during: 60
+        - during: 5
           laterSeconds: 5
     - name: "test-pro-db-slave02"
       dbType: "mysql"
@@ -41,10 +41,10 @@ GoHeartbeatTools:
       tblName: "go_heartbeat_tbl"
       maxIdleConnections: 1
       maxOpenConnections: 3
-      monitorRoler:
+      monitorRole:
         - during: 5
           laterSeconds: 20
-        - during: 30
+        - during: 10
           laterSeconds: 10
-        - during: 60
+        - during: 15
           laterSeconds: 5

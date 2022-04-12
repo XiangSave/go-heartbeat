@@ -29,6 +29,8 @@ func MasterCronRun(jobs *cronjob.CronjobServer, con *mysql.DBModel) error {
 		return err
 	}
 
+	// 手动触发一次 master update，第一次 slave 查询时 master 未启动导致的时间不准确
+	masterupdate(con)
 	_, err = jobs.AddJob("* * * * * *", MasterConnectionS{Con: con})
 	if err != nil {
 		return err
