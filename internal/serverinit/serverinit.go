@@ -5,9 +5,14 @@ import (
 	"go-heartbeat/global"
 	"go-heartbeat/pkg/mysql"
 	"log"
+	"time"
 
 	"github.com/pkg/errors"
 )
+
+func GlobalVarInit() {
+	global.StartTime = time.Now()
+}
 
 // 数据库创建主从监控表
 func MasterCreateTable(con *mysql.DBModel) error {
