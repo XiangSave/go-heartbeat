@@ -23,5 +23,5 @@ type MonitorRoleMsg struct {
 	// 此规则当前是否正在触发告警
 	Monitoring bool
 	// 当前真实延迟
-	NewLaterSecond int
+	NewLaterSecond int64
 }

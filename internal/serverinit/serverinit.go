@@ -3,6 +3,7 @@ package serverinit
 import (
 	"fmt"
 	"go-heartbeat/global"
+	"go-heartbeat/internal/cronjobs/slavemonitor"
 	"go-heartbeat/pkg/mysql"
 	"log"
 	"time"
@@ -41,4 +42,24 @@ func EchoDBInitCmd() {
 
 	fmt.Printf("GRANT SUPER,REPLICATION CLIENT ON *.* To '%s'@'%%';\n",
 		global.HeartbeatSetting.MasterConnectSetting.UserName)
+}
+
+// global 初始化全局报警信息变量
+func MonitorRoleMsgInit() {
+	for _, sConfSetting := range global.HeartbeatSetting.SlaveConnectSetting {
+		sm := slavemonitor.MonitorMsgs{}
+		sm.Monitoring = false
+		var mrs []slavemonitor.MonitorRoleMsg
+		for _, cr := range sConfSetting.MonitorRole {
+			mr := slavemonitor.MonitorRoleMsg{}
+			mr.During = cr.During
+			mr.LaterSeconds = cr.LaterSeconds
+			mr.Monitoring = false
+
+			mrs = append(mrs, mr)
+		}
+		sm.RoleMsgs = mrs
+
+		global.SlaveMonitorMsgs[sConfSetting.Name] = &sm
+	}
 }
