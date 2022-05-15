@@ -9,4 +9,4 @@ import (
 var HeartbeatSetting heartbeatconf.HeartbeatSettingS
 var MasterServerId int
 var StartTime time.Time
-var SlaveMonitorMsgs map[string]*slavemonitor.MonitorMsgs
+var SlaveMonitorMsgs = make(slavemonitor.AllMonitorMsgs)

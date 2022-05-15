@@ -34,8 +34,11 @@ func (s SlaveCheck) getRollingAverage(during int) (int64, error) {
 }
 
 func (s SlaveCheck) setGlobalMonitorMsgs(name string, during int, later int64) error {
+	log.Println(&global.SlaveMonitorMsgs)
+
 	global.SlaveMonitorMsgs[name].Mutex.Lock()
 	defer global.SlaveMonitorMsgs[name].Mutex.Unlock()
+
 	for _, gmr := range global.SlaveMonitorMsgs[name].RoleMsgs {
 		if gmr.During == during {
 			gmr.NewLaterSecond = later
@@ -58,15 +61,19 @@ func (s SlaveCheck) Run() {
 				(err != nil && i == len(s.MonitorRole) && time.Now().Sub(global.StartTime) > 15*1000000000) {
 				log.Info(len(s.RollingTiming.Buckets))
 				log.Errorf("%+v", err)
+				return
 			}
 
-			if later >= int64(role.LaterSeconds) {
-				log.Warnf("%s 状态异常报警：时间区间：%d，告警阈值：%d，当前延迟:%d",
-					s.Name, role.During, role.LaterSeconds, later)
-			} else {
-				log.Infof("%s 状态正常报警：时间区间：%d，告警阈值：%d，当前延迟:%d",
-					s.Name, role.During, role.LaterSeconds, later)
-			}
+			//TODO s.name 可优化
+			s.setGlobalMonitorMsgs(s.Name, s.MonitorRole[i].During, later)
+
+			// if later >= int64(role.LaterSeconds) {
+			// 	log.Warnf("%s 状态异常报警：时间区间：%d，告警阈值：%d，当前延迟:%d",
+			// 		s.Name, role.During, role.LaterSeconds, later)
+			// } else {
+			// 	log.Infof("%s 状态正常报警：时间区间：%d，告警阈值：%d，当前延迟:%d",
+			// 		s.Name, role.During, role.LaterSeconds, later)
+			// }
 			wg.Done()
 		}(i)
 	}

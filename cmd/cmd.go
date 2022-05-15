@@ -4,6 +4,7 @@ import (
 	"go-heartbeat/global"
 	"go-heartbeat/internal/cronjobs/masterupdate"
 	"go-heartbeat/internal/cronjobs/slavecheck"
+	"go-heartbeat/internal/cronjobs/slavemonitor"
 	"go-heartbeat/internal/cronjobs/slaveselect"
 	"go-heartbeat/internal/serverinit"
 	"go-heartbeat/pkg/cronjob"
@@ -80,6 +81,9 @@ var HeartbeatCmd = &cobra.Command{
 				jobs.AddJob("* * * * * *", slavecheck.SlaveCheck{
 					Name: s.Name, MonitorRole: s.MonitorRole, RollingTiming: s.RollingTiming})
 			}
+
+			// 开启 monitor check
+			jobs.AddJob("* * * * * *", slavemonitor.AllMonitorMsgs{})
 			jobs.Run()
 		}
 	},

@@ -2,8 +2,11 @@ package slavemonitor
 
 import (
 	"go-heartbeat/internal/heartbeatconf"
+	"log"
 	"sync"
 )
+
+type AllMonitorMsgs map[string]*MonitorMsgs
 
 type MonitorMsgs struct {
 	// 上次告警时间
@@ -24,4 +27,8 @@ type MonitorRoleMsg struct {
 	Monitoring bool
 	// 当前真实延迟
 	NewLaterSecond int64
+}
+
+func (m AllMonitorMsgs) Run() {
+	log.Println(m)
 }

@@ -4,8 +4,8 @@ GoHeartbeatTools:
   masterConnectSetting:
     name: "test-master-185"
     dbType: "mysql"
-    #host: "172.16.1.185"
-    host: "192.168.212.10:3306"
+    #host: "192.168.212.10:3306"
+    host: "192.168.210.102:3306"
     userName: "heartbeat_user"
     password: "123456"
     charset: "utf8mb4"
@@ -16,7 +16,7 @@ GoHeartbeatTools:
   slaveConnectSetting:
     - name: "test-pro-db-slave01"
       dbType: "mysql"
-      host: "192.168.212.11:3306"
+      host: "192.168.210.103:3306"
       userName: "heartbeat_user"
       password: "123456"
       charset: "utf8mb4"
@@ -33,7 +33,7 @@ GoHeartbeatTools:
           laterSeconds: 5
     - name: "test-pro-db-slave02"
       dbType: "mysql"
-      host: "192.168.212.11:3307"
+      host: "192.168.210.103:3307"
       userName: "heartbeat_user"
       password: "123456"
       charset: "utf8mb4"

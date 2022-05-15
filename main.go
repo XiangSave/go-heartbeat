@@ -4,20 +4,28 @@ import (
 	"go-heartbeat/cmd"
 	"go-heartbeat/global"
 	"go-heartbeat/internal/heartbeatconf"
+	"go-heartbeat/internal/serverinit"
 
 	log "github.com/sirupsen/logrus"
 )
 
 func init() {
+	// 初始化配置文件
 	err := setupSetting()
 	if err != nil {
 		log.Fatalf("init.setupSetting err: %v", err)
 	}
 
+	// 初始化日志配置
 	err = setupLogger(global.HeartbeatSetting.LogPath, log.DebugLevel)
 	if err != nil {
 		log.Fatalf("init.setupLogger err: %v", err)
 	}
+	// 初始化 global 变量
+	serverinit.MonitorRoleMsgInit()
+	log.Println("###########################3")
+	log.Println(global.SlaveMonitorMsgs)
+	log.Println("###########################3")
 
 }
 
