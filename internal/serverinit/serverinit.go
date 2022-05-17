@@ -47,7 +47,8 @@ func EchoDBInitCmd() {
 // global 初始化全局报警信息变量
 func MonitorRoleMsgInit() {
 	for _, sConfSetting := range global.HeartbeatSetting.SlaveConnectSetting {
-		sm := slavemonitor.MonitorMsgs{}
+		// sm := slavemonitor.MonitorMsgs{}
+		sm := new(slavemonitor.MonitorMsgs)
 		sm.Monitoring = false
 		var mrs []slavemonitor.MonitorRoleMsg
 		for _, cr := range sConfSetting.MonitorRole {
@@ -60,6 +61,6 @@ func MonitorRoleMsgInit() {
 		}
 		sm.RoleMsgs = mrs
 
-		global.SlaveMonitorMsgs[sConfSetting.Name] = &sm
+		global.SlaveMonitorMsgs[sConfSetting.Name] = sm
 	}
 }

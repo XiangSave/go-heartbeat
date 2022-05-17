@@ -1,8 +1,8 @@
 package slavemonitor
 
 import (
+	"fmt"
 	"go-heartbeat/internal/heartbeatconf"
-	"log"
 	"sync"
 )
 
@@ -30,5 +30,7 @@ type MonitorRoleMsg struct {
 }
 
 func (m AllMonitorMsgs) Run() {
-	log.Println(m)
+	for key, value := range m {
+		fmt.Println(key, *value)
+	}
 }

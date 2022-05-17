@@ -4,7 +4,6 @@ import (
 	"go-heartbeat/global"
 	"go-heartbeat/internal/cronjobs/masterupdate"
 	"go-heartbeat/internal/cronjobs/slavecheck"
-	"go-heartbeat/internal/cronjobs/slavemonitor"
 	"go-heartbeat/internal/cronjobs/slaveselect"
 	"go-heartbeat/internal/serverinit"
 	"go-heartbeat/pkg/cronjob"
@@ -83,7 +82,7 @@ var HeartbeatCmd = &cobra.Command{
 			}
 
 			// 开启 monitor check
-			jobs.AddJob("* * * * * *", slavemonitor.AllMonitorMsgs{})
+			jobs.AddJob("* * * * * *", global.SlaveMonitorMsgs)
 			jobs.Run()
 		}
 	},
